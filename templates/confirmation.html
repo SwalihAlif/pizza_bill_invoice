@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation</title>
+</head>
+<body>
+    <h1>Order Confirmation</h1>
+    <p><strong>Order ID:</strong> {{ order.id }}</p>
+    <p><strong>Size:</strong> {{ order.size }}</p>
+    {% if order.pepperoni == True %}
+    <p><strong>Pepperoni:</strong> Yes</p>
+    {% else %}
+    <p><strong>Pepperoni:</strong> No</p>
+    {% endif %}
+    {% if order.extra_cheese == True  %}
+    <p><strong>Extra Cheese:</strong> Yes</p>
+    {% else %}
+    <p><strong>Extra Cheese:</strong> No</p>
+    {% endif %}
+    <p><strong>Bill:</strong> Rs {{ order.bill }}</p>
+
+    <a href="{% url 'download_invoice' order.id %}">Download Invoice</a><br>
+    <a href="{% url 'download_invoice_excel' order.id %}">Download Invoice Excel</a><br>
+
+    <a style="color: red;" href="{% url 'order_pizza' %}">Order more</a>
+</body>
+</html>
+

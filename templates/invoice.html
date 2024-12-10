@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Invoice</title>
+</head>
+<body>
+    <h1>Techyaa Pizza Invoice</h1>
+    <p>Order ID: {{ order.id }}</p>
+    <ul>
+        <li>Size: {{ order.size }}</li>
+        <li>Pepperoni: {{ "Yes" if order.pepperoni else "No" }}</li>
+        <li>Extra Cheese: {{ "Yes" if order.extra_cheese else "No" }}</li>
+        <li>Final Bill: ₹{{ order.bill }}</li>
+    </ul>
+    <p>Thank you for ordering from Techyaa Pizza!</p>
+</body>
+</html>

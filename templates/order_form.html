@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Pizza</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <h1>Order Pizza</h1>
+<form id="pizzaOrderForm" method="POST" action="{% url 'order_pizza' %}">
+    {% csrf_token %}
+    <label for="size">Size:</label>
+    <select name="size" id="size" required>
+        <option value="Small">Small</option>
+        <option value="Medium">Medium</option>
+        <option value="Large">Large</option>
+    </select><br><br>
+
+    <label for="pepperoni">Pepperoni:</label>
+    <select name="pepperoni" id="pepperoni">
+        <option value="Y">Yes</option>
+        <option value="N">No</option>
+    </select><br><br>
+
+    <label for="extra_cheese">Extra Cheese:</label>
+    <select name="extra_cheese" id="extra_cheese">
+        <option value="Y">Yes</option>
+        <option value="N">No</option>
+    </select><br><br>
+
+    <p><strong>Total Price:</strong> Rs <span id="price">0.00</span></p>
+
+    <button type="submit">Place Order</button>
+</form>
+
+<script>
+    // JavaScript to dynamically update price
+    document.addEventListener("DOMContentLoaded", function () {
+        const size = document.getElementById("size");
+        const pepperoni = document.getElementById("pepperoni");
+        const extraCheese = document.getElementById("extra_cheese");
+        const priceDisplay = document.getElementById("price");
+
+        // Function to fetch updated price
+        function updatePrice() {
+            const csrfToken = document.querySelector('[name="csrfmiddlewaretoken"]').value;
+
+            const data = {
+                size: size.value,
+                pepperoni: pepperoni.value,
+                extra_cheese: extraCheese.value,
+            };
+
+            fetch("{% url 'get_pizza_price' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken,
+                },
+                body: JSON.stringify(data),
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.price !== undefined) {
+                        priceDisplay.textContent = data.price.toFixed(2);
+                    }
+                })
+                .catch((error) => console.error("Error:", error));
+        }
+
+        // Attach event listeners
+        [size, pepperoni, extraCheese].forEach((element) =>
+            element.addEventListener("change", updatePrice)
+        );
+
+        // Initialize price on page load
+        updatePrice();
+    });
+</script>
+
+
+    <script>
+        document.getElementById("pizzaOrderForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+
+            fetch("{% url 'order_pizza' %}", {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "X-CSRFToken": formData.get("csrfmiddlewaretoken"),
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.order_id) {
+                    Swal.fire({
+                        title: "Order Placed!",
+                        text: `Your order for a ${data.size} pizza has been placed. Bill: Rs ${data.bill}`,
+                        icon: "success",
+                        showCancelButton: false,
+                        confirmButtonText: "View Order",
+                    }).then(result => {
+                        if (result.isConfirmed) {
+                            window.location.href = `/order/confirmation/${data.order_id}/`; // Redirect to confirmation page
+                        }
+                    });
+                } else {
+                    Swal.fire("Error", "Something went wrong!", "error");
+                }
+            })
+            .catch(error => {
+                Swal.fire("Error", "Failed to place the order. Try again!", "error");
+            });
+        });
+    </script>
+</body>
+</html>
+
+
